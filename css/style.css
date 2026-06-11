@@ -1,0 +1,444 @@
+:root {
+  --cor-fundo: #f8f9fb;
+  --cor-texto: #1f2933;
+  --cor-texto-suave: #6b7280;
+  --cor-borda: #e5e7eb;
+  --cor-primaria: #1f2937;
+  --cor-acento: #f59e0b;
+  --cor-sucesso: #16a34a;
+  --cor-erro: #dc2626;
+  --raio: 14px;
+  --sombra: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+/* Tela de login */
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 360px;
+  background: #fff;
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.login-card h1 {
+  font-size: 1.5rem;
+  margin-bottom: 4px;
+}
+
+.login-card p.subtitulo {
+  color: var(--cor-texto-suave);
+  margin-top: 0;
+  margin-bottom: 24px;
+  font-size: 0.95rem;
+}
+
+/* Inputs e botões */
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  font-size: 1rem;
+  margin-bottom: 12px;
+  background: #fff;
+  color: var(--cor-texto);
+}
+
+input:focus {
+  outline: 2px solid var(--cor-primaria);
+  outline-offset: 1px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  border-radius: var(--raio);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--cor-primaria);
+  color: #fff;
+  transition: opacity 0.15s ease;
+}
+
+.btn:active {
+  opacity: 0.8;
+}
+
+.btn-secundario {
+  background: #fff;
+  color: var(--cor-primaria);
+  border: 1px solid var(--cor-borda);
+}
+
+.mensagem-erro {
+  color: var(--cor-erro);
+  font-size: 0.9rem;
+  margin-top: 8px;
+  min-height: 1.2em;
+}
+
+/* Cabeçalho do dashboard */
+.topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.topo h1 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.topo .sair {
+  font-size: 0.9rem;
+  color: var(--cor-texto-suave);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Cards de cliente */
+.cards-clientes {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card-cliente {
+  background: #fff;
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: 20px;
+  border-left: 6px solid var(--cor-cliente, var(--cor-primaria));
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.card-cliente .nome {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0 0 2px;
+}
+
+.card-cliente .segmento {
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+  margin: 0 0 12px;
+}
+
+.card-cliente .resumo {
+  display: flex;
+  gap: 16px;
+  font-size: 0.9rem;
+}
+
+.card-cliente .resumo strong {
+  display: block;
+  font-size: 1.1rem;
+}
+
+.card-cliente .acoes {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+.card-cliente .acoes button {
+  flex: 1;
+  padding: 10px;
+  font-size: 0.85rem;
+  border-radius: 10px;
+  border: 1px solid var(--cor-borda);
+  background: #fff;
+  cursor: pointer;
+}
+
+/* Painel do cliente */
+.cabecalho-cliente {
+  border-radius: var(--raio);
+  padding: 20px;
+  color: #fff;
+  background: var(--cor-cliente, var(--cor-primaria));
+  margin-bottom: 16px;
+}
+
+.cabecalho-cliente h1 {
+  margin: 0 0 4px;
+  font-size: 1.3rem;
+}
+
+.cabecalho-cliente p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 0.9rem;
+}
+
+.voltar {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: var(--cor-texto-suave);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+/* Abas */
+.abas {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.aba-botao {
+  flex: 1;
+  padding: 12px;
+  text-align: center;
+  border-radius: var(--raio);
+  border: 1px solid var(--cor-borda);
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.aba-botao.ativa {
+  background: var(--cor-cliente, var(--cor-primaria));
+  color: #fff;
+  border-color: transparent;
+}
+
+.aba-conteudo {
+  display: none;
+}
+
+.aba-conteudo.ativa {
+  display: block;
+}
+
+/* Calendário */
+.calendario-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.calendario-cabecalho h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.calendario-cabecalho button {
+  border: none;
+  background: #fff;
+  box-shadow: var(--sombra);
+  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.lista-posts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.post-item {
+  background: #fff;
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.post-item .info h3 {
+  margin: 0 0 2px;
+  font-size: 1rem;
+}
+
+.post-item .info p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+}
+
+.badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.badge-publicado {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-programado {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-planejamento {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.badge-ideia {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+/* Saldo financeiro */
+.saldo-resumo {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.saldo-card {
+  background: #fff;
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: 16px;
+  text-align: center;
+}
+
+.saldo-card .valor {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.saldo-card .rotulo {
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.barra-progresso {
+  background: var(--cor-borda);
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.barra-progresso .preenchido {
+  height: 100%;
+  background: var(--cor-cliente, var(--cor-primaria));
+}
+
+/* Botão flutuante de voz */
+.btn-voz {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--cor-cliente, var(--cor-primaria));
+  color: #fff;
+  border: none;
+  font-size: 1.5rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  z-index: 50;
+}
+
+/* Modal simples */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-overlay.escondido {
+  display: none;
+}
+
+.modal-conteudo {
+  background: #fff;
+  width: 100%;
+  max-width: 480px;
+  border-radius: var(--raio) var(--raio) 0 0;
+  padding: 24px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.modal-conteudo h2 {
+  margin-top: 0;
+}
+
+label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  margin-top: 12px;
+}
+
+select {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  font-size: 1rem;
+  background: #fff;
+  color: var(--cor-texto);
+}
+
+.modal-acoes {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+}
