@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel do cliente | Painel Central</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <a href="dashboard.html" class="voltar">&larr; Voltar</a>
+
+    <div class="cabecalho-cliente" id="cabecalho-cliente">
+      <h1 id="nome-cliente">Carregando...</h1>
+      <p id="info-cliente"></p>
+    </div>
+
+    <div class="abas">
+      <button class="aba-botao ativa" data-aba="calendario">Calendário</button>
+      <button class="aba-botao" data-aba="saldo">Saldo</button>
+    </div>
+
+    <!-- Aba Calendário -->
+    <div class="aba-conteudo ativa" id="aba-calendario">
+      <div class="calendario-cabecalho">
+        <button id="mes-anterior">&lsaquo;</button>
+        <h2 id="titulo-mes"></h2>
+        <button id="mes-proximo">&rsaquo;</button>
+      </div>
+
+      <button class="btn" id="btn-novo-post" style="margin-bottom: 16px;">+ Adicionar conteúdo</button>
+
+      <div class="lista-posts" id="lista-posts">
+        <!-- Posts gerados via JS -->
+      </div>
+    </div>
+
+    <!-- Aba Saldo -->
+    <div class="aba-conteudo" id="aba-saldo">
+      <div class="saldo-resumo" id="saldo-resumo">
+        <!-- Cards de saldo gerados via JS -->
+      </div>
+      <button class="btn btn-secundario" id="btn-relatorio">Gerar relatório do mês</button>
+    </div>
+  </div>
+
+  <button class="btn-voz" id="btn-voz" title="Adicionar por voz">&#127908;</button>
+
+  <!-- Modal de novo/editar post -->
+  <div class="modal-overlay escondido" id="modal-post">
+    <div class="modal-conteudo">
+      <h2 id="modal-titulo">Novo conteúdo</h2>
+      <form id="form-post">
+        <input type="hidden" id="post-id" />
+
+        <label for="post-data">Data</label>
+        <input type="text" id="post-data" placeholder="AAAA-MM-DD (deixe em branco se for ideia)" />
+
+        <label for="post-tipo">Tipo de conteúdo</label>
+        <select id="post-tipo"></select>
+
+        <label for="post-titulo">Título</label>
+        <input type="text" id="post-titulo" placeholder="Ex.: Personal do Inverno" required />
+
+        <label for="post-status">Status</label>
+        <select id="post-status"></select>
+
+        <div class="modal-acoes">
+          <button type="button" class="btn btn-secundario" id="btn-cancelar-post">Cancelar</button>
+          <button type="submit" class="btn">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/clientes.js"></script>
+  <script src="js/cliente.js"></script>
+</body>
+</html>
