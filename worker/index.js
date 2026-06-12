@@ -11,6 +11,7 @@ const ANTHROPIC_MODEL = "claude-sonnet-4-6";
 
 const ALLOWED_TIPOS = ["Reels", "Carrossel", "Stories", "Feed", "Encarte"];
 const ALLOWED_STATUS = ["Publicado", "Programado", "Planejamento", "Ideia"];
+const ALLOWED_ACOES = ["criar", "editar"];
 
 function corsHeaders() {
   return {
@@ -35,14 +36,27 @@ function buildPrompt(texto, hojeISO) {
 
 A data de hoje é ${hojeISO} (formato AAAA-MM-DD).
 
-A partir do texto do comando abaixo, extraia as seguintes informações:
-- "data": data do conteúdo no formato AAAA-MM-DD. Se o comando não mencionar o ano, use o ano atual a partir da data de hoje. Se não houver data nenhuma mencionada, use a data de hoje.
-- "tipo": o tipo de conteúdo. Deve ser EXATAMENTE um destes valores: "Reels", "Carrossel", "Stories", "Feed" ou "Encarte". Se não conseguir identificar, use "Feed".
-- "titulo": um título curto e descritivo para o conteúdo, baseado no que foi dito.
-- "status": o status do conteúdo. Deve ser EXATAMENTE um destes valores: "Publicado", "Programado", "Planejamento" ou "Ideia". Se não conseguir identificar, use "Planejamento".
+Primeiro, identifique a "acao" do comando:
+- "criar": o usuário quer adicionar um novo conteúdo ao calendário.
+- "editar": o usuário quer alterar/corrigir o último conteúdo registrado. Frases como "corrige o último", "muda o status do último para publicado", "edita o último post", "o título do último é..." indicam "editar".
 
-Responda APENAS com um objeto JSON puro, sem nenhum texto adicional, sem markdown, sem explicações. Exemplo de formato de resposta:
-{"data":"2026-06-03","tipo":"Carrossel","titulo":"Personal do Inverno","status":"Publicado"}
+A partir do texto do comando, extraia as seguintes informações:
+- "acao": "criar" ou "editar", conforme definido acima.
+- "data": data do conteúdo no formato AAAA-MM-DD.
+  - Se "acao" for "criar": se o comando não mencionar o ano, use o ano atual a partir da data de hoje; se não houver data nenhuma mencionada, use a data de hoje.
+  - Se "acao" for "editar": use null, a menos que o comando mencione explicitamente uma nova data para o conteúdo.
+- "tipo": o tipo de conteúdo. Deve ser EXATAMENTE um destes valores: "Reels", "Carrossel", "Stories", "Feed" ou "Encarte".
+  - Se "acao" for "criar" e não conseguir identificar, use "Feed".
+  - Se "acao" for "editar", use null, a menos que o comando mencione explicitamente um novo tipo.
+- "titulo": um título curto e descritivo para o conteúdo, baseado no que foi dito.
+  - Se "acao" for "editar", use null, a menos que o comando mencione explicitamente um novo título.
+- "status": o status do conteúdo. Deve ser EXATAMENTE um destes valores: "Publicado", "Programado", "Planejamento" ou "Ideia".
+  - Se "acao" for "criar" e não conseguir identificar, use "Planejamento".
+  - Se "acao" for "editar", use null, a menos que o comando mencione explicitamente um novo status.
+
+Responda APENAS com um objeto JSON puro, sem nenhum texto adicional, sem markdown, sem explicações. Exemplos de resposta:
+{"acao":"criar","data":"2026-06-03","tipo":"Carrossel","titulo":"Personal do Inverno","status":"Publicado"}
+{"acao":"editar","data":null,"tipo":null,"titulo":null,"status":"Publicado"}
 
 Texto do comando: "${texto}"`;
 }
@@ -60,20 +74,37 @@ function extractJson(text) {
 function validateResult(result) {
   const erros = [];
 
-  if (!result.data || !/^\d{4}-\d{2}-\d{2}$/.test(result.data)) {
-    erros.push("Campo 'data' inválido ou ausente");
+  if (!ALLOWED_ACOES.includes(result.acao)) {
+    erros.push(`Campo 'acao' inválido: ${result.acao}`);
+    return erros;
   }
 
-  if (!ALLOWED_TIPOS.includes(result.tipo)) {
+  const ehEdicao = result.acao === "editar";
+
+  if (result.data !== null && (!result.data || !/^\d{4}-\d{2}-\d{2}$/.test(result.data))) {
+    erros.push("Campo 'data' inválido");
+  }
+  if (ehEdicao && result.data === undefined) {
+    erros.push("Campo 'data' ausente");
+  }
+
+  if (result.tipo !== null && !ALLOWED_TIPOS.includes(result.tipo)) {
     erros.push(`Campo 'tipo' inválido: ${result.tipo}`);
   }
 
-  if (!result.titulo || typeof result.titulo !== "string" || !result.titulo.trim()) {
-    erros.push("Campo 'titulo' inválido ou ausente");
+  if (result.titulo !== null && (typeof result.titulo !== "string" || !result.titulo.trim())) {
+    erros.push("Campo 'titulo' inválido");
   }
 
-  if (!ALLOWED_STATUS.includes(result.status)) {
+  if (result.status !== null && !ALLOWED_STATUS.includes(result.status)) {
     erros.push(`Campo 'status' inválido: ${result.status}`);
+  }
+
+  if (!ehEdicao) {
+    if (!result.data) erros.push("Campo 'data' ausente para criação");
+    if (!result.tipo) erros.push("Campo 'tipo' ausente para criação");
+    if (!result.titulo) erros.push("Campo 'titulo' ausente para criação");
+    if (!result.status) erros.push("Campo 'status' ausente para criação");
   }
 
   return erros;
@@ -159,9 +190,10 @@ export default {
     }
 
     return jsonResponse({
+      acao: resultado.acao,
       data: resultado.data,
       tipo: resultado.tipo,
-      titulo: resultado.titulo.trim(),
+      titulo: resultado.titulo ? resultado.titulo.trim() : null,
       status: resultado.status,
     });
   },
