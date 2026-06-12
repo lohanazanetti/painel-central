@@ -16,6 +16,10 @@ document.getElementById("info-cliente").textContent = `${cliente.segmento} · ${
 
 const colecaoPosts = db.collection("clientes").doc(clienteId).collection("posts");
 
+// Acompanha o último post criado/editado, para comandos de voz como "edita o último"
+let ultimoPostId = null;
+let postsCarregados = [];
+
 // Estado do mês exibido no calendário
 const hoje = new Date();
 let anoExibido = hoje.getFullYear();
@@ -96,6 +100,8 @@ async function carregarPosts() {
     }
   });
 
+  postsCarregados = posts;
+
   if (posts.length === 0) {
     listaPosts.innerHTML = "<p>Nenhum conteúdo neste mês.</p>";
   } else {
@@ -115,8 +121,17 @@ function criarItemPost(post) {
       <p>${post.tipo} · ${formatarDataExibicao(post.data)}</p>
     </div>
     <span class="badge ${classeBadge(post.status)}">${post.status}</span>
+    <button class="btn-excluir-post" title="Excluir">🗑️</button>
   `;
   item.addEventListener("click", () => abrirModalPost(post));
+  item.querySelector(".btn-excluir-post").addEventListener("click", async (evento) => {
+    evento.stopPropagation();
+    if (confirm(`Excluir "${post.titulo}"?`)) {
+      await colecaoPosts.doc(post.id).delete();
+      if (ultimoPostId === post.id) ultimoPostId = null;
+      carregarPosts();
+    }
+  });
   return item;
 }
 
@@ -209,8 +224,10 @@ formPost.addEventListener("submit", async (evento) => {
 
   if (id) {
     await colecaoPosts.doc(id).update(dados);
+    ultimoPostId = id;
   } else {
-    await colecaoPosts.add(dados);
+    const novoDoc = await colecaoPosts.add(dados);
+    ultimoPostId = novoDoc.id;
   }
 
   modalPost.classList.add("escondido");
@@ -226,32 +243,44 @@ if (!SpeechRecognitionAPI) {
 } else {
   const reconhecimento = new SpeechRecognitionAPI();
   reconhecimento.lang = "pt-BR";
-  reconhecimento.continuous = false;
+  reconhecimento.continuous = true;
   reconhecimento.interimResults = false;
   reconhecimento.maxAlternatives = 1;
 
   let escutando = false;
+  let trechosFala = [];
 
   reconhecimento.addEventListener("start", () => {
     escutando = true;
+    trechosFala = [];
     btnVoz.classList.add("gravando");
-    btnVoz.title = "Escutando...";
+    btnVoz.title = "Gravando... toque novamente para finalizar";
   });
 
-  reconhecimento.addEventListener("end", () => {
+  reconhecimento.addEventListener("end", async () => {
     escutando = false;
     btnVoz.classList.remove("gravando");
     btnVoz.title = "Adicionar por voz";
+
+    const texto = trechosFala.join(" ").trim();
+    if (texto) {
+      await processarComandoVoz(texto);
+    }
   });
 
   reconhecimento.addEventListener("error", (evento) => {
     console.error("Erro no reconhecimento de voz:", evento.error);
-    alert("Não foi possível reconhecer o áudio. Tente novamente.");
+    if (evento.error !== "no-speech" && evento.error !== "aborted") {
+      alert("Não foi possível reconhecer o áudio. Tente novamente.");
+    }
   });
 
-  reconhecimento.addEventListener("result", async (evento) => {
-    const texto = evento.results[0][0].transcript;
-    await processarComandoVoz(texto);
+  reconhecimento.addEventListener("result", (evento) => {
+    for (let i = evento.resultIndex; i < evento.results.length; i++) {
+      if (evento.results[i].isFinal) {
+        trechosFala.push(evento.results[i][0].transcript);
+      }
+    }
   });
 
   btnVoz.addEventListener("click", () => {
@@ -282,15 +311,42 @@ async function processarComandoVoz(texto) {
       return;
     }
 
-    await colecaoPosts.add({
-      data: resultado.data || null,
-      tipo: resultado.tipo,
-      titulo: resultado.titulo,
-      status: resultado.status
-    });
+    if (resultado.acao === "editar") {
+      const idAlvo = ultimoPostId || (postsCarregados.length ? postsCarregados[postsCarregados.length - 1].id : null);
 
-    carregarPosts();
-    alert(`Conteúdo criado: "${resultado.titulo}" (${resultado.tipo}, ${resultado.status})`);
+      if (!idAlvo) {
+        alert("Não há nenhum conteúdo recente para editar.");
+        return;
+      }
+
+      const alteracoes = {};
+      if (resultado.data) alteracoes.data = resultado.data;
+      if (resultado.tipo) alteracoes.tipo = resultado.tipo;
+      if (resultado.titulo) alteracoes.titulo = resultado.titulo;
+      if (resultado.status) alteracoes.status = resultado.status;
+
+      if (Object.keys(alteracoes).length === 0) {
+        alert("Não foi possível identificar o que alterar no último conteúdo.");
+        return;
+      }
+
+      await colecaoPosts.doc(idAlvo).update(alteracoes);
+      ultimoPostId = idAlvo;
+
+      carregarPosts();
+      alert("Último conteúdo atualizado com sucesso.");
+    } else {
+      const novoDoc = await colecaoPosts.add({
+        data: resultado.data || null,
+        tipo: resultado.tipo,
+        titulo: resultado.titulo,
+        status: resultado.status
+      });
+      ultimoPostId = novoDoc.id;
+
+      carregarPosts();
+      alert(`Conteúdo criado: "${resultado.titulo}" (${resultado.tipo}, ${resultado.status})`);
+    }
   } catch (erro) {
     console.error("Erro ao processar comando de voz:", erro);
     alert("Erro ao conectar com o serviço de interpretação de voz.");
