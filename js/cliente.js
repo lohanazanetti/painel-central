@@ -16,6 +16,10 @@ document.getElementById("info-cliente").textContent = `${cliente.segmento} · ${
 
 const colecaoPosts = db.collection("clientes").doc(clienteId).collection("posts");
 
+// Acompanha o último post criado/editado, para comandos de voz como "edita o último"
+let ultimoPostId = null;
+let postsCarregados = [];
+
 // Estado do mês exibido no calendário
 const hoje = new Date();
 let anoExibido = hoje.getFullYear();
@@ -96,6 +100,8 @@ async function carregarPosts() {
     }
   });
 
+  postsCarregados = posts;
+
   if (posts.length === 0) {
     listaPosts.innerHTML = "<p>Nenhum conteúdo neste mês.</p>";
   } else {
@@ -122,6 +128,7 @@ function criarItemPost(post) {
     evento.stopPropagation();
     if (confirm(`Excluir "${post.titulo}"?`)) {
       await colecaoPosts.doc(post.id).delete();
+      if (ultimoPostId === post.id) ultimoPostId = null;
       carregarPosts();
     }
   });
@@ -217,8 +224,10 @@ formPost.addEventListener("submit", async (evento) => {
 
   if (id) {
     await colecaoPosts.doc(id).update(dados);
+    ultimoPostId = id;
   } else {
-    await colecaoPosts.add(dados);
+    const novoDoc = await colecaoPosts.add(dados);
+    ultimoPostId = novoDoc.id;
   }
 
   modalPost.classList.add("escondido");
@@ -302,15 +311,42 @@ async function processarComandoVoz(texto) {
       return;
     }
 
-    await colecaoPosts.add({
-      data: resultado.data || null,
-      tipo: resultado.tipo,
-      titulo: resultado.titulo,
-      status: resultado.status
-    });
+    if (resultado.acao === "editar") {
+      const idAlvo = ultimoPostId || (postsCarregados.length ? postsCarregados[postsCarregados.length - 1].id : null);
 
-    carregarPosts();
-    alert(`Conteúdo criado: "${resultado.titulo}" (${resultado.tipo}, ${resultado.status})`);
+      if (!idAlvo) {
+        alert("Não há nenhum conteúdo recente para editar.");
+        return;
+      }
+
+      const alteracoes = {};
+      if (resultado.data) alteracoes.data = resultado.data;
+      if (resultado.tipo) alteracoes.tipo = resultado.tipo;
+      if (resultado.titulo) alteracoes.titulo = resultado.titulo;
+      if (resultado.status) alteracoes.status = resultado.status;
+
+      if (Object.keys(alteracoes).length === 0) {
+        alert("Não foi possível identificar o que alterar no último conteúdo.");
+        return;
+      }
+
+      await colecaoPosts.doc(idAlvo).update(alteracoes);
+      ultimoPostId = idAlvo;
+
+      carregarPosts();
+      alert("Último conteúdo atualizado com sucesso.");
+    } else {
+      const novoDoc = await colecaoPosts.add({
+        data: resultado.data || null,
+        tipo: resultado.tipo,
+        titulo: resultado.titulo,
+        status: resultado.status
+      });
+      ultimoPostId = novoDoc.id;
+
+      carregarPosts();
+      alert(`Conteúdo criado: "${resultado.titulo}" (${resultado.tipo}, ${resultado.status})`);
+    }
   } catch (erro) {
     console.error("Erro ao processar comando de voz:", erro);
     alert("Erro ao conectar com o serviço de interpretação de voz.");
