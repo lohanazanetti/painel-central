@@ -217,10 +217,88 @@ formPost.addEventListener("submit", async (evento) => {
   carregarPosts();
 });
 
-// --- Comando por voz (placeholder, implementado na Fase 2) ---
-document.getElementById("btn-voz").addEventListener("click", () => {
-  alert("Comando por voz será implementado na Fase 2.");
-});
+// --- Comando por voz ---
+const btnVoz = document.getElementById("btn-voz");
+const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (!SpeechRecognitionAPI) {
+  btnVoz.title = "Seu navegador não suporta comando por voz";
+} else {
+  const reconhecimento = new SpeechRecognitionAPI();
+  reconhecimento.lang = "pt-BR";
+  reconhecimento.continuous = false;
+  reconhecimento.interimResults = false;
+  reconhecimento.maxAlternatives = 1;
+
+  let escutando = false;
+
+  reconhecimento.addEventListener("start", () => {
+    escutando = true;
+    btnVoz.classList.add("gravando");
+    btnVoz.title = "Escutando...";
+  });
+
+  reconhecimento.addEventListener("end", () => {
+    escutando = false;
+    btnVoz.classList.remove("gravando");
+    btnVoz.title = "Adicionar por voz";
+  });
+
+  reconhecimento.addEventListener("error", (evento) => {
+    console.error("Erro no reconhecimento de voz:", evento.error);
+    alert("Não foi possível reconhecer o áudio. Tente novamente.");
+  });
+
+  reconhecimento.addEventListener("result", async (evento) => {
+    const texto = evento.results[0][0].transcript;
+    await processarComandoVoz(texto);
+  });
+
+  btnVoz.addEventListener("click", () => {
+    if (escutando) {
+      reconhecimento.stop();
+      return;
+    }
+    reconhecimento.start();
+  });
+}
+
+async function processarComandoVoz(texto) {
+  btnVoz.disabled = true;
+  btnVoz.title = "Processando...";
+
+  try {
+    const resposta = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ texto })
+    });
+
+    const resultado = await resposta.json();
+
+    if (!resposta.ok || resultado.error) {
+      console.error("Erro do Worker:", resultado);
+      alert(`Não foi possível interpretar o comando: ${resultado.error || "erro desconhecido"}`);
+      return;
+    }
+
+    await colecaoPosts.add({
+      data: resultado.data || null,
+      tipo: resultado.tipo,
+      titulo: resultado.titulo,
+      status: resultado.status
+    });
+
+    carregarPosts();
+    alert(`Conteúdo criado: "${resultado.titulo}" (${resultado.tipo}, ${resultado.status})`);
+  } catch (erro) {
+    console.error("Erro ao processar comando de voz:", erro);
+    alert("Erro ao conectar com o serviço de interpretação de voz.");
+  } finally {
+    btnVoz.disabled = false;
+    btnVoz.title = "Adicionar por voz";
+  }
+}
 
 // --- Relatório (placeholder, implementado na Fase 3) ---
 document.getElementById("btn-relatorio").addEventListener("click", () => {
