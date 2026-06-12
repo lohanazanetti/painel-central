@@ -115,8 +115,16 @@ function criarItemPost(post) {
       <p>${post.tipo} · ${formatarDataExibicao(post.data)}</p>
     </div>
     <span class="badge ${classeBadge(post.status)}">${post.status}</span>
+    <button class="btn-excluir-post" title="Excluir">🗑️</button>
   `;
   item.addEventListener("click", () => abrirModalPost(post));
+  item.querySelector(".btn-excluir-post").addEventListener("click", async (evento) => {
+    evento.stopPropagation();
+    if (confirm(`Excluir "${post.titulo}"?`)) {
+      await colecaoPosts.doc(post.id).delete();
+      carregarPosts();
+    }
+  });
   return item;
 }
 
@@ -226,32 +234,44 @@ if (!SpeechRecognitionAPI) {
 } else {
   const reconhecimento = new SpeechRecognitionAPI();
   reconhecimento.lang = "pt-BR";
-  reconhecimento.continuous = false;
+  reconhecimento.continuous = true;
   reconhecimento.interimResults = false;
   reconhecimento.maxAlternatives = 1;
 
   let escutando = false;
+  let trechosFala = [];
 
   reconhecimento.addEventListener("start", () => {
     escutando = true;
+    trechosFala = [];
     btnVoz.classList.add("gravando");
-    btnVoz.title = "Escutando...";
+    btnVoz.title = "Gravando... toque novamente para finalizar";
   });
 
-  reconhecimento.addEventListener("end", () => {
+  reconhecimento.addEventListener("end", async () => {
     escutando = false;
     btnVoz.classList.remove("gravando");
     btnVoz.title = "Adicionar por voz";
+
+    const texto = trechosFala.join(" ").trim();
+    if (texto) {
+      await processarComandoVoz(texto);
+    }
   });
 
   reconhecimento.addEventListener("error", (evento) => {
     console.error("Erro no reconhecimento de voz:", evento.error);
-    alert("Não foi possível reconhecer o áudio. Tente novamente.");
+    if (evento.error !== "no-speech" && evento.error !== "aborted") {
+      alert("Não foi possível reconhecer o áudio. Tente novamente.");
+    }
   });
 
-  reconhecimento.addEventListener("result", async (evento) => {
-    const texto = evento.results[0][0].transcript;
-    await processarComandoVoz(texto);
+  reconhecimento.addEventListener("result", (evento) => {
+    for (let i = evento.resultIndex; i < evento.results.length; i++) {
+      if (evento.results[i].isFinal) {
+        trechosFala.push(evento.results[i][0].transcript);
+      }
+    }
   });
 
   btnVoz.addEventListener("click", () => {

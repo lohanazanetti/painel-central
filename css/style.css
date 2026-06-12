@@ -305,6 +305,15 @@ input:focus {
   font-size: 0.85rem;
 }
 
+.btn-excluir-post {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px;
+  flex-shrink: 0;
+}
+
 .badge {
   font-size: 0.75rem;
   font-weight: 600;
