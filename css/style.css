@@ -390,6 +390,16 @@ input:focus {
   z-index: 50;
 }
 
+.btn-voz.gravando {
+  animation: pulsar-voz 1s infinite;
+  background: #e53935;
+}
+
+@keyframes pulsar-voz {
+  0%, 100% { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2); }
+  50% { box-shadow: 0 4px 24px rgba(229, 57, 53, 0.7); }
+}
+
 /* Modal simples */
 .modal-overlay {
   position: fixed;

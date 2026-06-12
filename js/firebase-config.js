@@ -13,3 +13,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+
+// URL do Cloudflare Worker que interpreta comandos de voz via Claude
+// Substitua pela URL real do Worker depois do deploy (ex.: https://painel-central-voz.SEU-SUBDOMINIO.workers.dev)
+const WORKER_URL = "https://painel-central-voz.SEU-SUBDOMINIO.workers.dev";
