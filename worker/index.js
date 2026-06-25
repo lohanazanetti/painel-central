@@ -9,7 +9,7 @@
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 const ANTHROPIC_MODEL = "claude-sonnet-4-6";
 
-const ALLOWED_TIPOS = ["Reels", "Carrossel", "Stories", "Feed"];
+const ALLOWED_TIPOS = ["Reels", "Carrossel", "Stories", "Feed", "Captação"];
 const ALLOWED_STATUS = ["Publicado", "Programado", "Planejamento", "Ideia"];
 const ALLOWED_ACOES = ["criar", "editar"];
 
@@ -45,7 +45,7 @@ A partir do texto do comando, extraia as seguintes informações:
 - "data": data do conteúdo no formato AAAA-MM-DD.
   - Se "acao" for "criar": se o comando não mencionar o ano, use o ano atual a partir da data de hoje; se não houver data nenhuma mencionada, use a data de hoje.
   - Se "acao" for "editar": use null, a menos que o comando mencione explicitamente uma nova data para o conteúdo.
-- "tipo": o tipo de conteúdo. Deve ser EXATAMENTE um destes valores: "Reels", "Carrossel", "Stories" ou "Feed".
+- "tipo": o tipo de conteúdo. Deve ser EXATAMENTE um destes valores: "Reels", "Carrossel", "Stories", "Feed" ou "Captação".
   - Se "acao" for "criar" e não conseguir identificar, use "Feed".
   - Se "acao" for "editar", use null, a menos que o comando mencione explicitamente um novo tipo.
 - "titulo": um título curto e descritivo para o conteúdo, baseado no que foi dito.

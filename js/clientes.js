@@ -59,16 +59,27 @@ const CLIENTES = {
       Carrossel: 4,
       Feed: 4
     },
-    desde: "2026-06-01"
+    desde: "2026-06-01",
+    plano:
+      "Plano Crescimento, conteúdo estratégico pra atrair e vender.\n\n" +
+      "4 Reels/mês (podendo substituir por carrossel), com texto estratégico, publicados no feed + stories.\n\n" +
+      "Stories diários (seg a sáb), captação presencial de fotos dos produtos, criação de banco de imagens próprias.",
+    // Métricas contabilizáveis com marcação manual, exibidas na aba Saldo no lugar do padrão por tipo.
+    // Reels e Carrossel contam para uma meta combinada de 4/mês; Captação é só contagem, sem meta;
+    // Stories não tem métrica (aparece só na descrição do plano e é sempre considerado cumprido).
+    metricas: [
+      { rotulo: "Reels ou Carrossel", tipos: ["Reels", "Carrossel"], meta: 4 },
+      { rotulo: "Captações presenciais", tipos: ["Captação"], meta: null }
+    ]
   }
 };
 
 // Tipos de conteúdo e status possíveis para um post
-const TIPOS_CONTEUDO = ["Reels", "Carrossel", "Stories", "Feed"];
+const TIPOS_CONTEUDO = ["Reels", "Carrossel", "Stories", "Feed", "Captação"];
 const STATUS_CONTEUDO = ["Publicado", "Programado", "Planejamento", "Ideia"];
 
 // Tipos de conteúdo sem quantidade contratada no pacote mensal (contagem aberta, sem meta)
-const TIPOS_SEM_LIMITE = ["Stories"];
+const TIPOS_SEM_LIMITE = ["Stories", "Captação"];
 
 // Valor em R$ de cada conteúdo produzido, usado no cálculo de Saldo
 const PRECO_CONTEUDO = {
@@ -83,5 +94,6 @@ const COR_TIPO = {
   Reels: "#fee2e2",
   Carrossel: "#dbeafe",
   Feed: "#dcfce7",
-  Stories: "#ede9fe"
+  Stories: "#ede9fe",
+  Captação: "#fae8ff"
 };

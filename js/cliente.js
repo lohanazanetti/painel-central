@@ -14,6 +14,11 @@ document.documentElement.style.setProperty("--cor-cliente", cliente.corPrimaria)
 document.getElementById("nome-cliente").textContent = cliente.nome;
 document.getElementById("info-cliente").textContent = `${cliente.segmento} · ${cliente.responsavel}`;
 
+if (cliente.plano) {
+  document.getElementById("plano-cliente-texto").textContent = cliente.plano;
+  document.getElementById("plano-cliente").classList.remove("escondido");
+}
+
 const colecaoPosts = db.collection("clientes").doc(clienteId).collection("posts");
 
 // Acompanha o último post criado/editado, para comandos de voz como "edita o último"
@@ -155,24 +160,35 @@ function atualizarSaldo(snapshot, prefixoMes) {
   saldoResumo.innerHTML = "";
   let totalReceber = 0;
 
-  TIPOS_CONTEUDO.forEach((tipo) => {
-    const feito = entregue[tipo] || 0;
-    totalReceber += feito * (PRECO_CONTEUDO[tipo] || 0);
+  // Clientes com configuração própria de métricas (ex.: meta combinada Reels/Carrossel) usam
+  // cliente.metricas; os demais seguem o padrão de um card por tipo de TIPOS_CONTEUDO.
+  const metricas =
+    cliente.metricas ||
+    TIPOS_CONTEUDO.map((tipo) => ({
+      rotulo: tipo,
+      tipos: [tipo],
+      meta: TIPOS_SEM_LIMITE.includes(tipo) ? null : cliente.pacoteMensal[tipo] || 0
+    }));
+
+  metricas.forEach((metrica) => {
+    const feito = metrica.tipos.reduce((soma, tipo) => soma + (entregue[tipo] || 0), 0);
+    metrica.tipos.forEach((tipo) => {
+      totalReceber += (entregue[tipo] || 0) * (PRECO_CONTEUDO[tipo] || 0);
+    });
 
     const card = document.createElement("div");
     card.className = "saldo-card";
 
-    if (TIPOS_SEM_LIMITE.includes(tipo)) {
+    if (metrica.meta === null || metrica.meta === undefined) {
       card.innerHTML = `
         <div class="valor">${feito}</div>
-        <div class="rotulo">${tipo} <span class="rotulo-aberto">(contagem aberta)</span></div>
+        <div class="rotulo">${metrica.rotulo} <span class="rotulo-aberto">(contagem aberta)</span></div>
       `;
     } else {
-      const contratado = cliente.pacoteMensal[tipo] || 0;
-      const percentual = contratado > 0 ? Math.min(100, Math.round((feito / contratado) * 100)) : 0;
+      const percentual = metrica.meta > 0 ? Math.min(100, Math.round((feito / metrica.meta) * 100)) : 0;
       card.innerHTML = `
-        <div class="valor">${feito}/${contratado}</div>
-        <div class="rotulo">${tipo}</div>
+        <div class="valor">${feito}/${metrica.meta}</div>
+        <div class="rotulo">${metrica.rotulo}</div>
         <div class="barra-progresso"><div class="preenchido" style="width: ${percentual}%"></div></div>
       `;
     }

@@ -212,6 +212,26 @@ input:focus {
   font-size: 0.9rem;
 }
 
+.plano-cliente {
+  background: #fff;
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  border-left: 6px solid var(--cor-cliente, var(--cor-primaria));
+}
+
+.plano-cliente.escondido {
+  display: none;
+}
+
+.plano-cliente p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--cor-texto);
+  white-space: pre-line;
+}
+
 .voltar {
   display: inline-block;
   margin-bottom: 12px;
