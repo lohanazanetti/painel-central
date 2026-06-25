@@ -60,6 +60,8 @@ const CLIENTES = {
       Feed: 4
     },
     desde: "2026-06-01",
+    // Perfil sem cobrança por produção: a aba Saldo mostra só quantidade entregue, sem valor em R$.
+    semValorFinanceiro: true,
     plano:
       "Plano Crescimento, conteúdo estratégico pra atrair e vender.\n\n" +
       "4 Reels/mês (podendo substituir por carrossel), com texto estratégico, publicados no feed + stories.\n\n" +

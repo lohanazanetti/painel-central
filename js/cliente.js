@@ -172,9 +172,11 @@ function atualizarSaldo(snapshot, prefixoMes) {
 
   metricas.forEach((metrica) => {
     const feito = metrica.tipos.reduce((soma, tipo) => soma + (entregue[tipo] || 0), 0);
-    metrica.tipos.forEach((tipo) => {
-      totalReceber += (entregue[tipo] || 0) * (PRECO_CONTEUDO[tipo] || 0);
-    });
+    if (!cliente.semValorFinanceiro) {
+      metrica.tipos.forEach((tipo) => {
+        totalReceber += (entregue[tipo] || 0) * (PRECO_CONTEUDO[tipo] || 0);
+      });
+    }
 
     const card = document.createElement("div");
     card.className = "saldo-card";
@@ -196,13 +198,15 @@ function atualizarSaldo(snapshot, prefixoMes) {
     saldoResumo.appendChild(card);
   });
 
-  const cardTotal = document.createElement("div");
-  cardTotal.className = "saldo-card saldo-total";
-  cardTotal.innerHTML = `
-    <div class="valor">${totalReceber.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</div>
-    <div class="rotulo">Total a receber no mês</div>
-  `;
-  saldoResumo.appendChild(cardTotal);
+  if (!cliente.semValorFinanceiro) {
+    const cardTotal = document.createElement("div");
+    cardTotal.className = "saldo-card saldo-total";
+    cardTotal.innerHTML = `
+      <div class="valor">${totalReceber.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</div>
+      <div class="rotulo">Total a receber no mês</div>
+    `;
+    saldoResumo.appendChild(cardTotal);
+  }
 }
 
 // --- Modal de novo/editar post ---
