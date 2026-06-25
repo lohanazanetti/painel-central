@@ -342,6 +342,15 @@ input:focus {
   color: #4b5563;
 }
 
+.tag-tipo {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1f2933;
+}
+
 /* Saldo financeiro */
 .saldo-resumo {
   display: grid;
@@ -367,6 +376,21 @@ input:focus {
   color: var(--cor-texto-suave);
   font-size: 0.85rem;
   margin-top: 4px;
+}
+
+.saldo-card .rotulo-aberto {
+  font-style: italic;
+  font-size: 0.78rem;
+}
+
+.saldo-card.saldo-total {
+  grid-column: 1 / -1;
+  background: var(--cor-cliente, var(--cor-primaria));
+  color: #fff;
+}
+
+.saldo-card.saldo-total .rotulo {
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .barra-progresso {

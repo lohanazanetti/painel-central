@@ -12,9 +12,7 @@ const CLIENTES = {
     pacoteMensal: {
       Reels: 4,
       Carrossel: 4,
-      Stories: 8,
-      Feed: 4,
-      Encarte: 2
+      Feed: 4
     },
     desde: "2024-01-01"
   },
@@ -29,9 +27,7 @@ const CLIENTES = {
     pacoteMensal: {
       Reels: 4,
       Carrossel: 4,
-      Stories: 8,
-      Feed: 4,
-      Encarte: 2
+      Feed: 4
     },
     desde: "2024-01-01"
   },
@@ -46,9 +42,7 @@ const CLIENTES = {
     pacoteMensal: {
       Reels: 4,
       Carrossel: 4,
-      Stories: 8,
-      Feed: 4,
-      Encarte: 2
+      Feed: 4
     },
     desde: "2025-01-01"
   },
@@ -63,14 +57,31 @@ const CLIENTES = {
     pacoteMensal: {
       Reels: 4,
       Carrossel: 4,
-      Stories: 8,
-      Feed: 4,
-      Encarte: 2
+      Feed: 4
     },
     desde: "2026-06-01"
   }
 };
 
 // Tipos de conteúdo e status possíveis para um post
-const TIPOS_CONTEUDO = ["Reels", "Carrossel", "Stories", "Feed", "Encarte"];
+const TIPOS_CONTEUDO = ["Reels", "Carrossel", "Stories", "Feed"];
 const STATUS_CONTEUDO = ["Publicado", "Programado", "Planejamento", "Ideia"];
+
+// Tipos de conteúdo sem quantidade contratada no pacote mensal (contagem aberta, sem meta)
+const TIPOS_SEM_LIMITE = ["Stories"];
+
+// Valor em R$ de cada conteúdo produzido, usado no cálculo de Saldo
+const PRECO_CONTEUDO = {
+  Reels: 85,
+  Carrossel: 50,
+  Feed: 30,
+  Stories: 15
+};
+
+// Cor de destaque por tipo de conteúdo (badges/tags)
+const COR_TIPO = {
+  Reels: "#fee2e2",
+  Carrossel: "#dbeafe",
+  Feed: "#dcfce7",
+  Stories: "#ede9fe"
+};

@@ -118,7 +118,10 @@ function criarItemPost(post) {
   item.innerHTML = `
     <div class="info">
       <h3>${post.titulo}</h3>
-      <p>${post.tipo} · ${formatarDataExibicao(post.data)}</p>
+      <p>
+        <span class="tag-tipo" style="background:${COR_TIPO[post.tipo] || "#f3f4f6"}">${post.tipo}</span>
+        · ${formatarDataExibicao(post.data)}
+      </p>
     </div>
     <span class="badge ${classeBadge(post.status)}">${post.status}</span>
     <button class="btn-excluir-post" title="Excluir">🗑️</button>
@@ -150,20 +153,40 @@ function atualizarSaldo(snapshot, prefixoMes) {
   });
 
   saldoResumo.innerHTML = "";
+  let totalReceber = 0;
+
   TIPOS_CONTEUDO.forEach((tipo) => {
-    const contratado = cliente.pacoteMensal[tipo] || 0;
     const feito = entregue[tipo] || 0;
-    const percentual = contratado > 0 ? Math.min(100, Math.round((feito / contratado) * 100)) : 0;
+    totalReceber += feito * (PRECO_CONTEUDO[tipo] || 0);
 
     const card = document.createElement("div");
     card.className = "saldo-card";
-    card.innerHTML = `
-      <div class="valor">${feito}/${contratado}</div>
-      <div class="rotulo">${tipo}</div>
-      <div class="barra-progresso"><div class="preenchido" style="width: ${percentual}%"></div></div>
-    `;
+
+    if (TIPOS_SEM_LIMITE.includes(tipo)) {
+      card.innerHTML = `
+        <div class="valor">${feito}</div>
+        <div class="rotulo">${tipo} <span class="rotulo-aberto">(contagem aberta)</span></div>
+      `;
+    } else {
+      const contratado = cliente.pacoteMensal[tipo] || 0;
+      const percentual = contratado > 0 ? Math.min(100, Math.round((feito / contratado) * 100)) : 0;
+      card.innerHTML = `
+        <div class="valor">${feito}/${contratado}</div>
+        <div class="rotulo">${tipo}</div>
+        <div class="barra-progresso"><div class="preenchido" style="width: ${percentual}%"></div></div>
+      `;
+    }
+
     saldoResumo.appendChild(card);
   });
+
+  const cardTotal = document.createElement("div");
+  cardTotal.className = "saldo-card saldo-total";
+  cardTotal.innerHTML = `
+    <div class="valor">${totalReceber.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</div>
+    <div class="rotulo">Total a receber no mês</div>
+  `;
+  saldoResumo.appendChild(cardTotal);
 }
 
 // --- Modal de novo/editar post ---
